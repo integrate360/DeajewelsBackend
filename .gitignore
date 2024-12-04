@@ -10,11 +10,8 @@ node_modules/
 
 # package-json
 
-# dotenv environment variables file
-
-
+# dotenv environment variables fil
 
 .env
-
 .vscode
 .serverless

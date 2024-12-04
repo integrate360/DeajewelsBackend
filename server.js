@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const serverless = require("serverless-http");
+
 
 const orderRoutes = require("./routes/orderRoutes");
 const userRoutes = require("./routes/userRoutes");
@@ -57,4 +57,4 @@ app.listen(PORT, () => {
   console.log(`App is listening on port ${PORT}`);
 });
 
-module.exports.api = serverless(app);
+
