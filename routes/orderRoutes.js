@@ -14,8 +14,6 @@ router.put("/updateOrder/:orderId", orderController.updateOrder);
 
 router.put("/acceptOrder/:orderId", orderController.acceptOrder);
 
-router.put("/assignOrderToDeliveryBoy",orderController.assignOrderToDeliveryBoy);
-
 router.delete("/order/:orderId", orderController.deleteOrder);
 
 router.put("/cancel/:orderId", orderController.cancelOrder);

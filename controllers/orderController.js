@@ -1,5 +1,4 @@
 const Order = require("../models/Order");
-const DeliveryBoy = require("../models/DeliveryBoy"); 
 
 const createOrder = async (req, res) => {
   try {
@@ -15,8 +14,17 @@ const createOrder = async (req, res) => {
     } = req.body;
 
     // Validate input
-    if (!userId || !addressId || !cartItems || !totalPrice || !name || !email || !phone || !paymentMode) {
-      return res.status(400).json({ message: 'All fields are required' });
+    if (
+      !userId ||
+      !addressId ||
+      !cartItems ||
+      !totalPrice ||
+      !name ||
+      !email ||
+      !phone ||
+      !paymentMode
+    ) {
+      return res.status(400).json({ message: "All fields are required" });
     }
 
     // Create the order
@@ -36,12 +44,12 @@ const createOrder = async (req, res) => {
 
     // Return the saved order
     return res.status(201).json({
-      message: 'Order created successfully',
+      message: "Order created successfully",
       order: savedOrder,
     });
   } catch (error) {
-    console.error('Error creating order:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    console.error("Error creating order:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -90,7 +98,6 @@ const getAllOrders = async (req, res) => {
 };
 
 const updateOrderStatus = async (req, res) => {
-
   try {
     const { orderId } = req.params;
     const { status } = req.body;
@@ -122,54 +129,29 @@ const deleteOrder = async (req, res) => {
   }
 };
 
-const assignOrderToDeliveryBoy = async (req, res) => {
-  try {
-    const { deliveryBoyId, orderId } = req.body;
-
-    const deliveryBoy = await DeliveryBoy.findById(deliveryBoyId);
-    if (!deliveryBoy) {
-      return res.status(404).json({ message: "Delivery Boy not found" });
-    }
-    const order = await Order.findById(orderId);
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-    deliveryBoy.orders.push(orderId);
-    await deliveryBoy.save();
-    res
-      .status(200)
-      .json({ message: "Order assigned to Delivery Boy successfully" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
 const cancelOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
 
     const updatedOrder = await Order.findByIdAndUpdate(
       orderId,
-      { status: 'Cancelled' },
-      { new: true }  
+      { status: "Cancelled" },
+      { new: true }
     );
 
     if (!updatedOrder) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ message: "Order not found" });
     }
 
     res.json({
-      message: 'Order cancelled successfully!',
-      order: updatedOrder
+      message: "Order cancelled successfully!",
+      order: updatedOrder,
     });
   } catch (error) {
-    console.error('Error cancelling order:', error);
-    res.status(500).json({ error: 'Failed to cancel order.' });
+    console.error("Error cancelling order:", error);
+    res.status(500).json({ error: "Failed to cancel order." });
   }
 };
-
-
-
 
 const updateOrder = async (req, res) => {
   try {
@@ -181,11 +163,9 @@ const updateOrder = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-
     order.name = name;
     order.email = email;
     order.phone = phone;
-
 
     const updatedOrder = await order.save();
 
@@ -197,7 +177,6 @@ const updateOrder = async (req, res) => {
 };
 module.exports = {
   updateOrder,
-  assignOrderToDeliveryBoy,
   getAllOrders,
   acceptOrder,
   cancelOrder,
