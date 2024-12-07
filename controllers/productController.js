@@ -1,9 +1,9 @@
 const Product = require("../models/Product");
-const { uploadImage ,deleteImage} = require("../helper/uploadImage");
 
 const createProduct = async (req, res) => {
   try {
     const files = req.files;
+    console.log(files.length)
 
     if (!files || files.length === 0) {
       return res
@@ -11,12 +11,15 @@ const createProduct = async (req, res) => {
         .json({ success: false, message: "Image files are required" });
     }
 
-    // Map through the files and upload each one
-    const imageUrls = await Promise.all(files.map(file => uploadImage(file)));
+    // Generate the image URLs
+    const imageUrls = files.map((file) => `/uploads/${file.filename}`);
 
-    const product = new Product({ ...req.body, images: imageUrls });
+    const product = new Product({
+      ...req.body,
+      images: imageUrls,
+    });
+
     await product.save();
-
     res.status(201).json({ success: true, data: product });
   } catch (error) {
     console.error("Error creating product:", error);
@@ -28,24 +31,27 @@ const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const updates = { ...req.body }; // Collect the product updates from the request body
-    const files = req.files; // Check if multiple image files are uploaded
+    const files = req.files; // Check if image files are uploaded
 
     // If image files are provided, upload each and gather their URLs
     if (files && files.length > 0) {
       console.log("Image files found, uploading...");
-      const imageUrls = await Promise.all(files.map(file => uploadImage(file))); // Upload each file and get the URLs
+      const imageUrls = files.map((file) => `/uploads/${file.filename}`); // Generate URLs based on the stored filenames
       updates.images = imageUrls; // Add the image URLs to the update object
     }
 
     // Find the product by ID and update its details
     const updatedProduct = await Product.findByIdAndUpdate(id, updates, {
-      new: true,
+      new: true, // Return the updated product
     }).populate("productCategoryId");
 
     if (!updatedProduct) {
-      return res.status(404).json({ message: "Product not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
     }
 
+    // Send the updated product in the response
     res.status(200).json({ success: true, data: updatedProduct });
   } catch (error) {
     console.error("Error updating product:", error);
@@ -194,7 +200,7 @@ const updateProductVariantById = async (req, res) => {
         $set: {
           "variants.$": variantUpdates, // Update the specific variant data
         },
-      },
+      }
     );
 
     if (!updatedProduct) {
@@ -212,41 +218,60 @@ const updateProductVariantById = async (req, res) => {
 };
 
 const deleteProductImageByIndex = async (req, res) => {
-  const { productId, imageIndex } = req.params; // Get product ID and image index from params
-
   try {
-    // Find the product by ID
+    const { productId, imageIndex } = req.params;
     const product = await Product.findById(productId);
-
     if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
     }
-
-    // Check if the image index is valid
-    if (imageIndex < 0 || imageIndex >= product.images.length) {
-      return res.status(400).json({ message: "Invalid image index" });
+    const imageUrls = product.images;
+    if (imageIndex < 0 || imageIndex >= imageUrls.length) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid image index" });
     }
-
-    // Get the URL of the image to delete
-    const imageUrl = product.images[imageIndex];
-
-    // Remove the image from the array
-    product.images.splice(imageIndex, 1);
-
-    // Update the product in the database
-    await product.save();
-
-    // Optionally, delete the image from storage
-    await deleteImage(imageUrl); // Call a helper function to delete the image from storage
-
-    res.status(200).json({
-      success: true,
-      message: "Image deleted successfully",
-      product,
+    const imagePath = imageUrls[imageIndex].replace("/uploads/", "");
+    const fullPath = path.join(__dirname, "..", "uploads", imagePath);
+    fs.unlink(fullPath, (err) => {
+      if (err) {
+        console.error("Error deleting file:", err);
+        return res
+          .status(500)
+          .json({
+            success: false,
+            message: "Failed to delete image from server",
+          });
+      }
+      product.images.splice(imageIndex, 1);
+      product
+        .save()
+        .then((updatedProduct) => {
+          res
+            .status(200)
+            .json({
+              success: true,
+              message: "Image deleted successfully",
+              data: updatedProduct,
+            });
+        })
+        .catch((error) => {
+          console.error("Error saving updated product:", error);
+          res
+            .status(500)
+            .json({
+              success: false,
+              message: "Failed to update product",
+              error: error.message,
+            });
+        });
     });
   } catch (error) {
     console.error("Error deleting product image:", error);
-    res.status(500).json({ message: "Error deleting image", error });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
   }
 };
 

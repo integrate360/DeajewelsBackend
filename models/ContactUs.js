@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const contactusSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    require: true,
     ref: "User",
   },
   title: {
@@ -17,6 +16,10 @@ const contactusSchema = new mongoose.Schema({
   phone: {
     type: Number,
     required: true,
+  },
+  date: {
+    type: Date,
+    default: Date.now,
   },
 });
 

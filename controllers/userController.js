@@ -1,7 +1,6 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const mongoose = require("mongoose");
-const { uploadImage } = require("../helper/uploadImage");
 const generateOtp = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
@@ -44,65 +43,20 @@ const registerUser = async (req, res) => {
   }
 };
 
-// const verifyOtp = async (req, res) => {
-//   try {
-//     const { phoneNumber, otp } = req.body;
-//     const normalizedPhoneNumber = phoneNumber.trim();
-//     console.log("Received OTP:", otp);
-//     console.log("Stored OTP:", otps[normalizedPhoneNumber]?.otp);
-//     console.log("Stored Data:", otps[normalizedPhoneNumber]);
-
-//     // Verify the OTP
-//     if (otps[normalizedPhoneNumber] && otps[normalizedPhoneNumber].otp === otp.trim()) {
-//       const username = otps[normalizedPhoneNumber].username;
-
-//       // Check if the user already exists (for registration)
-//       const existingUser = await User.findOne({ phoneNumber: normalizedPhoneNumber });
-//       if (!existingUser) {
-//         // If user doesn't exist, create a new one
-//         const newUser = new User({
-//           phoneNumber: normalizedPhoneNumber,
-//           username,
-//         });
-//         await newUser.save();
-//       }
-
-//       // Remove the OTP after successful verification
-//       delete otps[normalizedPhoneNumber];
-
-//       return res.status(200).json({ message: "OTP verified successfully" ,newUser});
-//     } else {
-//       return res.status(400).json({ message: "Invalid OTP" });
-//     }
-//   } catch (err) {
-//     console.error("Error during OTP verification:", err);
-//     res.status(500).json({ message: "Failed to verify OTP" });
-//   }
-// };
 const verifyOtp = async (req, res) => {
   try {
     const { phoneNumber, otp } = req.body;
     const normalizedPhoneNumber = phoneNumber.trim();
-    // console.log("Received OTP:", otp);
-    // console.log("Stored OTP:", otps[normalizedPhoneNumber]?.otp);
-    // console.log("Stored Data:", otps[normalizedPhoneNumber]);
-
-    // Verify the OTP
     if (otps[normalizedPhoneNumber] && otps[normalizedPhoneNumber].otp === otp.trim()) {
       const username = otps[normalizedPhoneNumber].username;
-
-      // Check if the user already exists (for registration)
       let existingUser = await User.findOne({ phoneNumber: normalizedPhoneNumber });
       if (!existingUser) {
-        // If user doesn't exist, create a new one
         existingUser = new User({
           phoneNumber: normalizedPhoneNumber,
           username,
         });
         await existingUser.save();
       }
-
-      // Remove the OTP after successful verification
       delete otps[normalizedPhoneNumber];
 
       return res.status(200).json({ message: "OTP verified successfully", user: existingUser });
@@ -166,61 +120,34 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-// const updateUser = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const updateData = req.body;
-
-//     console.log(`Updating user with ID: ${id}`);
-
-//     const updatedUser = await User.findByIdAndUpdate(id, updateData, {
-//       new: true,
-//       runValidators: true,
-//     });
-
-//     if (!updatedUser) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-//     const image = await uploadImage(file);
-//     const user = new User({ ...req.body, image });
-//     res.status(200).json({
-//       message: "User updated successfully",
-//       updatedUser,
-//     });
-//   } catch (err) {
-//     console.error("Error updating user:", err);
-//     res.status(500).json({ message: "Failed to update user" });
-//   }
-// };
-
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = req.body;
+    const updates = { ...req.body }; 
+    const files = req.files; 
 
-    console.log(`Updating user with ID: ${id}`);
-    let imageUrl;
-    if (req.file) {
-      imageUrl = await uploadImage(req.file);
-
-      updateData.image = imageUrl;
+    if (files && files.length > 0) {
+      console.log("Image files found, uploading...");
+      const imageUrls = files.map((file) => `/uploads/${file.filename}`); 
+      updates.images = imageUrls;
     }
-
-    const updatedUser = await User.findByIdAndUpdate(id, updateData, {
-      new: true,
-      runValidators: true,
+    const updatedUser = await User.findByIdAndUpdate(id, updates, {
+      new: true, 
     });
+
     if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
-
-    res.status(200).json({
-      message: "User updated successfully",
-      updatedUser,
+    res.status(200).json({ success: true, data: updatedUser });
+  } catch (error) {
+    console.error("Error updating User:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update User",
+      error: error.message,
     });
-  } catch (err) {
-    console.error("Error updating user:", err);
-    res.status(500).json({ message: "Failed to update user" });
   }
 };
 

@@ -1,15 +1,31 @@
 const mongoose = require("mongoose");
 
 const productCategorySchema = new mongoose.Schema({
-  productCategory: {
-    type: String,
+  title: {
+    type: String, 
     required: true,
-    unique: true,
   },
-  image: {
-    type: String,
+  images: {
+    type: [String], 
   },
-  date: { type: Date, default: Date.now, required: true },
+
+  metaDescription: {
+    type: String, 
+    required: true,
+  },
+  metaKeywords: {
+    type: [String], 
+    required: true,
+  },
+  metaTitle: {
+    type: String, 
+    required: true,
+  },
+  date: {
+    type: Date,
+    default: Date.now,
+    required: true,
+  },
 });
 
 const ProductCategory = mongoose.model(
