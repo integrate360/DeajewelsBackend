@@ -1,13 +1,11 @@
-const mongoose = require("mongoose"); // Erase if already required
+const mongoose = require("mongoose"); 
 
-// Declare the Schema of the Mongo model
-var newsLetter = new mongoose.Schema({
+
+const newsLetter = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
   },
 });
 
-//Export the model
 module.exports = mongoose.model("newsletter", newsLetter);
