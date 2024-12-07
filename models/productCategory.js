@@ -10,6 +10,7 @@ const productCategorySchema = new mongoose.Schema({
     type: String,
   },
   date: { type: Date, default: Date.now, required: true },
+  isFeatured: { type: Boolean },
 });
 
 const ProductCategory = mongoose.model(
