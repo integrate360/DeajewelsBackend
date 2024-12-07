@@ -28,7 +28,10 @@ mongoose
   })
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Error connecting to MongoDB:", err));
-
+  
+  app.get('/', (req, res) => {
+    res.send('Welcome to the Deajewels API');
+  });
 // Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/users", userRoutes);
