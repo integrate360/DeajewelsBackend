@@ -9,7 +9,6 @@ const cartRoutes = require("./routes/cartRoutes");
 const productRoutes = require("./routes/productRoutes");
 const categoryRoutes = require("./routes/productCategoryRoutes");
 const contactRoutes = require("./routes/contactRoutes");
-const testimonialRoutes = require("./routes/TestimonialsRoutes")
 
 
 dotenv.config();
@@ -36,9 +35,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/contact", contactRoutes);
-app.use("/api/testimonial", testimonialRoutes);
 
-app.use("/uploads", express.static("uploads"));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

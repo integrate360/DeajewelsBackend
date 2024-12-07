@@ -21,11 +21,7 @@ const productCategorySchema = new mongoose.Schema({
     type: String, 
     required: true,
   },
-  date: {
-    type: Date,
-    default: Date.now,
-    required: true,
-  },
+  date: { type: Date, default: Date.now, required: true },
 });
 
 const ProductCategory = mongoose.model(
