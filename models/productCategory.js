@@ -2,26 +2,26 @@ const mongoose = require("mongoose");
 
 const productCategorySchema = new mongoose.Schema({
   title: {
-    type: String, 
+    type: String,
     required: true,
   },
   images: {
-    type: [String], 
+    type: [String],
   },
-
   metaDescription: {
-    type: String, 
+    type: String,
     required: true,
   },
   metaKeywords: {
-    type: [String], 
+    type: [String],
     required: true,
   },
   metaTitle: {
-    type: String, 
+    type: String,
     required: true,
   },
   date: { type: Date, default: Date.now, required: true },
+  isFeatured: { type: Boolean, default: false },
 });
 
 const ProductCategory = mongoose.model(

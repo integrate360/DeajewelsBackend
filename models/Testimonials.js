@@ -1,12 +1,13 @@
 const mongoose = require("mongoose");
 
 const TestimonialSchema = new mongoose.Schema({
+  username: { type: String, required: true },
   title: {
-    type: String, 
+    type: String,
     required: true,
   },
   images: {
-    type: [String], 
+    type: [String],
   },
   desc: {
     type: String,
@@ -19,9 +20,6 @@ const TestimonialSchema = new mongoose.Schema({
   },
 });
 
-const Testimonial = mongoose.model(
-  "Testimonial",
-  TestimonialSchema
-);
+const Testimonial = mongoose.model("Testimonial", TestimonialSchema);
 
 module.exports = Testimonial;
