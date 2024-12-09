@@ -1,7 +1,5 @@
 const ProductCategory = require("../models/productCategory");
 
-
-
 const createProductCategory = async (req, res) => {
   try {
     const files = req.files;
@@ -27,7 +25,6 @@ const createProductCategory = async (req, res) => {
   }
 };
 
-
 const updateProductCategory = async (req, res) => {
   try {
     const { id } = req.params;
@@ -42,9 +39,13 @@ const updateProductCategory = async (req, res) => {
     }
 
     // Find the ProductCategory by ID and update its details
-    const updatedProduct = await ProductCategory.findByIdAndUpdate(id, updates, {
-      new: true, // Return the updated ProductCategory
-    }).populate("productCategoryId");
+    const updatedProduct = await ProductCategory.findByIdAndUpdate(
+      id,
+      updates,
+      {
+        new: true, // Return the updated ProductCategory
+      }
+    );
 
     if (!updatedProduct) {
       return res
@@ -99,7 +100,6 @@ const updateProductCategory = async (req, res) => {
 //   }
 // };
 
-
 const getAllProductCategories = async (req, res) => {
   try {
     const categories = await ProductCategory.find();
@@ -109,13 +109,13 @@ const getAllProductCategories = async (req, res) => {
   }
 };
 
-
-
 const deleteProductCategory = async (req, res) => {
   try {
     const { id } = req.params;
     await ProductCategory.findByIdAndDelete(id);
-    res.status(200).json({ message: "ProductCategory category deleted successfully" });
+    res
+      .status(200)
+      .json({ message: "ProductCategory category deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
