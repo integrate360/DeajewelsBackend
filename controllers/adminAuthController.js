@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const AdminUser = require("../models/adminUser");
 
 exports.register = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password ,username} = req.body;
   try {
     let adminUser = await AdminUser.findOne({ email });
     if (adminUser) {
@@ -12,6 +12,7 @@ exports.register = async (req, res) => {
     adminUser = new AdminUser({
       email,
       password,
+      username,
     });
 
     const salt = await bcrypt.genSalt(10);
